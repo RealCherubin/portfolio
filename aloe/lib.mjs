@@ -15,11 +15,12 @@ export const HEIGHT = 370;
 // a token with a light value (ships) and a dark override.
 export const ALOE_CSS = `
 .iso[data-theme="light"],.iso[data-theme="light"] .iso-plate{
-  --clf-paper:#a5b43a;--clf-top:#b4c34c;--clf-0:#7b8a23;--clf-1:#86952c;--clf-2:#909f33;--clf-3:#9aa938;--clf-hi:#3f4a0e;--clf-lo:#6c7a1f;--clf-faint:#8b9a30;
+  --clf-paper:#a5b43a;--clf-top:#b4c34c;--clf-0:#8d9c2e;--clf-1:#95a535;--clf-2:#9dad3b;--clf-3:#a5b541;--clf-hi:#3f4a0e;--clf-lo:#6c7a1f;--clf-faint:#8b9a30;
   --clb-paper:#ece5d1;--clb-top:#f4eedd;--clb-0:#d0c7ad;--clb-1:#d9d1b9;--clb-2:#e2dbc5;--clb-3:#e8e1cd;--clb-hi:#6b6450;--clb-lo:#b7ad91;--clb-faint:#d3cab1;
   --aloe-stripe:#8d9f27;--aloe-thread:#f6f1e2;--aloe-thread-edge:#9a9078;--aloe-dust:#93a52c;
 }
-.iso{
+.iso[data-theme="light"],.iso[data-theme="light"] .iso-plate{--aloe-dope:#ead9a6;--aloe-cavity:#e4e3de;--aloe-liquid:#cfd8d6;--aloe-glass:#ffffff}
+.iso{--aloe-dope:#6b5a2a;--aloe-cavity:#0e0e0e;--aloe-liquid:#2a3433;--aloe-glass:#ffffff;
   --clf-paper:#5f6b1d;--clf-top:#6d7a23;--clf-0:#414b11;--clf-1:#495415;--clf-2:#525e19;--clf-3:#5a671c;--clf-hi:#d3e07e;--clf-lo:#8d9b3a;--clf-faint:#6c7a26;
   --clb-paper:#39362d;--clb-top:#423e34;--clb-0:#28261f;--clb-1:#2e2b24;--clb-2:#332f28;--clb-3:#37342c;--clb-hi:#dcd3b8;--clb-lo:#77705d;--clb-faint:#4e4a3e;
   --aloe-stripe:#9db23a;--aloe-thread:#e9e2cb;--aloe-thread-edge:#6f6956;--aloe-dust:#a9bd44;
@@ -29,9 +30,16 @@ export const ALOE_CSS = `
 .aloe-stripe{fill:none;stroke:var(--aloe-stripe);stroke-width:.9;stroke-linecap:butt}
 .aloe-stitch{fill:none;stroke:var(--aloe-thread);stroke-width:1;stroke-dasharray:2.2 1.6;stroke-linecap:butt}
 .aloe-stitch-under{fill:none;stroke:var(--anatomy-hi);stroke-width:2;stroke-dasharray:2.2 1.6;stroke-linecap:butt;opacity:.8}
+.aloe-cream{fill:none;stroke:var(--clb-lo);stroke-width:.9;stroke-linecap:butt}
 .aloe-thread{fill:none;stroke:var(--aloe-thread-edge);stroke-width:.5;stroke-linecap:round}
 .aloe-fill-face{fill:var(--clf-top)}.aloe-fill-face[data-steep]{fill:var(--clf-2)}
 .aloe-fill-body{fill:var(--clb-top)}.aloe-fill-body[data-steep]{fill:var(--clb-2)}
+.aloe-cavity{fill:var(--aloe-cavity);stroke:none}
+.aloe-dope{fill:var(--aloe-dope);stroke:var(--clb-hi);stroke-width:.5;stroke-opacity:.5}
+.aloe-glass{fill:var(--aloe-glass);opacity:.35;stroke:none}
+.aloe-liquid{fill:var(--aloe-liquid);opacity:.62;stroke:none}
+.aloe-powder{fill:var(--aloe-dust);stroke:none}
+.aloe-filament{fill:none;stroke:var(--aloe-stripe);stroke-width:.7;stroke-dasharray:4 1.4;stroke-linecap:butt}
 .aloe-dust circle{fill:var(--aloe-dust);stroke:none}
 .iso-swatch[data-mark="face"] path{stroke:var(--clf-paper);stroke-width:3}
 .iso-swatch[data-mark="body"] path{stroke:var(--clb-0);stroke-width:3}
