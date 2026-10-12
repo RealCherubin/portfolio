@@ -6,9 +6,10 @@ import { pageHtml, PRE, LOOP } from "./lib.mjs";
 import { fig05 } from "./fig05-spin.mjs";
 import { fig06 } from "./fig06-weave.mjs";
 import { fig07 } from "./fig07-finish.mjs";
+import { fig08 } from "./fig08-serum.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const figs = [fig05, fig06, fig07];
+const figs = [fig05, fig06, fig07, fig08];
 const intro = `<p class="aloe-intro">The making of an aloe vera towel<small>The last steps of the line, from woven cloth to a folded towel. Every figure runs on its own; hover to scrub, or use the arrow keys.</small></p>`;
 for (const theme of ["light", "dark"]) {
   const html = pageHtml({

@@ -19,8 +19,8 @@ export const ALOE_CSS = `
   --clb-paper:#ece5d1;--clb-top:#f4eedd;--clb-0:#d0c7ad;--clb-1:#d9d1b9;--clb-2:#e2dbc5;--clb-3:#e8e1cd;--clb-hi:#6b6450;--clb-lo:#b7ad91;--clb-faint:#d3cab1;
   --aloe-stripe:#8d9f27;--aloe-thread:#f6f1e2;--aloe-thread-edge:#9a9078;--aloe-dust:#93a52c;
 }
-.iso[data-theme="light"],.iso[data-theme="light"] .iso-plate{--aloe-dope:#ead9a6;--aloe-cavity:#e4e3de;--aloe-liquid:#cfd8d6;--aloe-glass:#ffffff}
-.iso{--aloe-dope:#6b5a2a;--aloe-cavity:#0e0e0e;--aloe-liquid:#2a3433;--aloe-glass:#ffffff;
+.iso[data-theme="light"],.iso[data-theme="light"] .iso-plate{--serum:#2f86d6;--serum-glow:#4da6ff;--screen:#2b3440;--aloe-dope:#ead9a6;--aloe-cavity:#e4e3de;--aloe-liquid:#cfd8d6;--aloe-glass:#ffffff}
+.iso{--serum:#4aa3f0;--serum-glow:#5bb4ff;--screen:#0a1018;--aloe-dope:#6b5a2a;--aloe-cavity:#0e0e0e;--aloe-liquid:#2a3433;--aloe-glass:#ffffff;
   --clf-paper:#5f6b1d;--clf-top:#6d7a23;--clf-0:#414b11;--clf-1:#495415;--clf-2:#525e19;--clf-3:#5a671c;--clf-hi:#d3e07e;--clf-lo:#8d9b3a;--clf-faint:#6c7a26;
   --clb-paper:#39362d;--clb-top:#423e34;--clb-0:#28261f;--clb-1:#2e2b24;--clb-2:#332f28;--clb-3:#37342c;--clb-hi:#dcd3b8;--clb-lo:#77705d;--clb-faint:#4e4a3e;
   --aloe-stripe:#9db23a;--aloe-thread:#e9e2cb;--aloe-thread-edge:#6f6956;--aloe-dust:#a9bd44;
@@ -34,6 +34,11 @@ export const ALOE_CSS = `
 .aloe-thread{fill:none;stroke:var(--aloe-thread-edge);stroke-width:.5;stroke-linecap:round}
 .aloe-fill-face{fill:var(--clf-top)}.aloe-fill-face[data-steep]{fill:var(--clf-2)}
 .aloe-fill-body{fill:var(--clb-top)}.aloe-fill-body[data-steep]{fill:var(--clb-2)}
+.serum-trim{fill:none;stroke:var(--serum);stroke-width:1}
+.serum-fill{fill:var(--serum);stroke:none}
+.serum-screen{fill:var(--screen);stroke:none}
+.serum-tier [data-part="tier"] .iso-fill,.serum-tier [data-part="tier"] .iso-shade,.serum-tier [data-part="tier"] .iso-top{fill:var(--serum)}
+.iso-swatch[data-mark="serum"] path{stroke:var(--serum);stroke-width:3}
 .aloe-cavity{fill:var(--aloe-cavity);stroke:none}
 .aloe-dope{fill:var(--aloe-dope);stroke:var(--clb-hi);stroke-width:.5;stroke-opacity:.5}
 .aloe-glass{fill:var(--aloe-glass);opacity:.35;stroke:none}
