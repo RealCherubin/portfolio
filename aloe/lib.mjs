@@ -135,7 +135,7 @@ function tick(now) {
   draw(t, now / 1000);
   frame = visible ? requestAnimationFrame(tick) : 0;
 }
-const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };
+const run = () => { if (window.ALOE_FILM) return; if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };
 const steer = (next) => {
   touring = false; target = clamp(next, 0, 0.999);
   clearTimeout(idle);
@@ -160,4 +160,6 @@ stage.addEventListener("keydown", (event) => {
   stage.setAttribute("aria-valuetext", PHASES[to].name);
 });
 draw(t, 0);
+// film mode: a recorder sets the exact moment of every figure, frame by frame
+(window.__aloe = window.__aloe || []).push((at, clock) => { touring = false; t = target = at; draw(at, clock); });
 `;
