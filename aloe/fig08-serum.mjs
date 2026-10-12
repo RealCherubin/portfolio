@@ -17,7 +17,7 @@ const DOSE_X = 8; // the head and the towel stopped under it
 const PITCH = 40; // towel spacing; one index per cycle
 const TOWEL = { w: 26, d: 34, h: 2.4 };
 const HEAD_Z = 46; // head bottom at rest
-const SLOTS = [-4, -3, -2, -1, 0, 1, 2, 3];
+const SLOTS = [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3];
 
 const P = k.fitProjection([...k.boxCorners(PLATE, -17, 0), [-80, -60, 72], [DOSE_X, 0, 88]], WIDTH, HEIGHT, { pad: 26, azimuth: 50 });
 const { at, S, L, D, byDepth } = helpers(P);
@@ -217,7 +217,8 @@ function draw(t, clock) {
   slots.forEach((s, i) => {
     const x = DOSE_X + (s.n - 1 + m) * PITCH;
     s.g.setAttribute("transform", translateAlong(P, [x, 0, 0]));
-    const edge = Math.min(1, (148 - Math.abs(x)) / 14);
+    // on the joined line the belt continues in from the finishing bench, so towels keep going left
+    const edge = Math.min(1, ((x < 0 && window.ALOE_LINE ? 232 : 148) - Math.abs(x)) / 14);
     s.g.style.opacity = String(Math.max(0, edge));
     const dosed = s.n >= 1 ? 1 : s.n === 0 && t >= land ? 1 : 0;
     // the spot spreads into the face side and settles to a tint
