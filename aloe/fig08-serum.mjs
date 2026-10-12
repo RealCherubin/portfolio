@@ -15,7 +15,7 @@ const BELT_Z = 24;
 const BELT = { x: -148, y: -20, w: 296, d: 40, r: 1 };
 const DOSE_X = 8; // the head and the towel stopped under it
 const PITCH = 40; // towel spacing; one index per cycle
-const TOWEL = { w: 26, d: 34, h: 6 };
+const TOWEL = { w: 26, d: 34, h: 2.4 };
 const HEAD_Z = 46; // head bottom at rest
 const SLOTS = [-4, -3, -2, -1, 0, 1, 2, 3];
 
@@ -105,24 +105,36 @@ function conveyorBack() {
 
 function towelArt() {
   const plan = { x: -TOWEL.w / 2, y: -TOWEL.d / 2, w: TOWEL.w, d: TOWEL.d, r: 1.6 };
-  const inner = L(k.sideSeam(plan, BELT_Z + 2, P, 3) + k.sideSeam(plan, BELT_Z + 4, P, 3), { tone: "faint" });
+  const inner = L(k.sideSeam(plan, BELT_Z + TOWEL.h / 2, P, 3), { tone: "faint" });
   const top = BELT_Z + TOWEL.h;
   const stitch = k.lineOnTop([plan.x, plan.y + plan.d - 3], [plan.x + plan.w, plan.y + plan.d - 3], top, P);
-  return `<path class="iso-halo" d="${k.haloOf(k.insetPlan(plan, 2), BELT_Z, 0.1, P)}" style="filter:blur(3px)"/><g class="cl-face">${S(k.slabOf(plan, BELT_Z, TOWEL.h, P, 3, 0.4), { tone: "hi", crease: "lo", inner })}<path class="aloe-stitch-under" d="${stitch}"/><path class="aloe-stitch" d="${stitch}"/></g><g class="cl-body">${S(k.slabOf({ x: plan.x + 3, y: plan.y + plan.d - 9, w: 9, d: 4, r: 0.5 }, top, 0.5, P, 2), { tone: "hi", crease: "lo" })}</g>`;
+  return `<path class="iso-halo" d="${k.haloOf(k.insetPlan(plan, 2), BELT_Z, 0.1, P)}" style="filter:blur(3px)"/><g class="cl-face">${S(k.slabOf(plan, BELT_Z, TOWEL.h, P, 3, 0.3), { tone: "hi", crease: "lo", inner })}<path class="aloe-stitch-under" d="${stitch}"/><path class="aloe-stitch" d="${stitch}"/></g><g class="cl-body">${S(k.slabOf({ x: plan.x + 3, y: plan.y + plan.d - 9, w: 9, d: 4, r: 0.5 }, top, 0.5, P, 2), { tone: "hi", crease: "lo" })}</g>`;
 }
 
 function slots() {
   const art = towelArt();
   const top = at([0, 0, BELT_Z + TOWEL.h]);
-  return SLOTS.map((n) => `<g data-slot="${n}">${art}<ellipse data-spot class="serum-fill" cx="${top[0].toFixed(1)}" cy="${top[1].toFixed(1)}" rx="0" ry="0"/></g>`).join("");
+  const glow = glowArt();
+  return SLOTS.map((n) => `<g data-slot="${n}"><g data-glow style="opacity:0">${glow}</g>${art}<ellipse data-spot class="serum-fill" cx="${top[0].toFixed(1)}" cy="${top[1].toFixed(1)}" rx="0" ry="0"/></g>`).join("");
 }
 
-// glows are drawn as their own layer over the towels and under the near rail
-function glows() {
-  const top = at([0, 0, BELT_Z + TOWEL.h]);
-  const [cx, cy] = top;
-  const w = TOWEL.w * KS * 0.95, h = 30 * KS;
-  return SLOTS.map((n) => `<g data-glow="${n}" style="opacity:0"><rect x="${(cx - w / 2).toFixed(1)}" y="${(cy - h).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="url(#serum-column)" rx="${(w / 2).toFixed(1)}"/><ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${(w * 0.62).toFixed(1)}" ry="${(w * 0.62 * Math.sin((30 * Math.PI) / 180)).toFixed(1)}" fill="url(#serum-halo)"/></g>`).join("");
+// each towel's glow sits behind it: a halo round its whole outline and a soft
+// column rising off its full width
+function hull(points) {
+  const p = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lower = [], upper = [];
+  for (const q of p) { while (lower.length > 1 && cross(lower[lower.length - 2], lower[lower.length - 1], q) <= 0) lower.pop(); lower.push(q); }
+  for (const q of p.reverse()) { while (upper.length > 1 && cross(upper[upper.length - 2], upper[upper.length - 1], q) <= 0) upper.pop(); upper.push(q); }
+  return lower.slice(0, -1).concat(upper.slice(0, -1));
+}
+function glowArt() {
+  const top = BELT_Z + TOWEL.h;
+  const plan = { x: -TOWEL.w / 2, y: -TOWEL.d / 2, w: TOWEL.w, d: TOWEL.d, r: 1.6 };
+  const ring = k.ringOf(k.insetPlan(plan, -2.2), 3);
+  const halo = k.pathOf(hull([...ring.map(([x, y]) => at([x, y, BELT_Z])), ...ring.map(([x, y]) => at([x, y, top + 1.5]))]), true);
+  const column = k.pathOf(hull([...k.ringOf(plan, 3).map(([x, y]) => at([x, y, top])), ...k.ringOf(plan, 3).map(([x, y]) => at([x, y, top + 22]))]), true);
+  return `<path d="${column}" fill="url(#serum-column)" style="filter:blur(3px)"/><path d="${halo}" class="serum-wash" style="filter:blur(3.5px)"/>`;
 }
 
 function conveyorFront() {
@@ -159,7 +171,7 @@ function boom() {
 
 const defs = `<defs>
 <radialGradient id="serum-halo"><stop offset="0" style="stop-color:var(--serum-glow);stop-opacity:.75"/><stop offset=".55" style="stop-color:var(--serum-glow);stop-opacity:.28"/><stop offset="1" style="stop-color:var(--serum-glow);stop-opacity:0"/></radialGradient>
-<linearGradient id="serum-column" x1="0" y1="1" x2="0" y2="0"><stop offset="0" style="stop-color:var(--serum-glow);stop-opacity:.5"/><stop offset=".45" style="stop-color:var(--serum-glow);stop-opacity:.16"/><stop offset="1" style="stop-color:var(--serum-glow);stop-opacity:0"/></linearGradient>
+<linearGradient id="serum-column" x1="0" y1="1" x2="0" y2="0"><stop offset="0" style="stop-color:var(--serum-glow);stop-opacity:.62"/><stop offset=".4" style="stop-color:var(--serum-glow);stop-opacity:.24"/><stop offset="1" style="stop-color:var(--serum-glow);stop-opacity:0"/></linearGradient>
 </defs>`;
 
 const svg = k.figureSvg({
@@ -167,7 +179,7 @@ const svg = k.figureSvg({
   height: HEIGHT,
   label:
     "A stainless serum dosing cabinet on casters beside an indexing conveyor. Folded olive towels stop one at a time under a dosing head on a boom; the head lowers, places one drop of blue serum on the towel's face side and lifts, and the dosed towel moves on with a soft blue glow over it. A stack light on the cabinet shows blue while it doses.",
-  body: [defs, bench(P, PLATE, { label: [-150, 48] }), casters(), cabinet(), conveyorBack(), `<g data-part="towels">${slots()}</g>`, `<g data-part="glows" class="serum-glows">${glows()}</g>`, conveyorFront(), boom()],
+  body: [defs, bench(P, PLATE, { label: [-150, 48] }), casters(), cabinet(), conveyorBack(), `<g data-part="towels">${slots()}</g>`, conveyorFront(), boom()],
 });
 
 const live = `
@@ -177,8 +189,8 @@ const SLOPE = ${JSON.stringify(SLOPE)};
 const CYCLE = 5.2, START = 0.3;
 const PHASES = [{ at: 0, name: "indexing" }, { at: 0.36, name: "towel in place" }, { at: 0.5, name: "dosing" }, { at: 0.66, name: "serum set" }];
 const part = (name) => svg.querySelector('[data-part="' + name + '"]');
-const slots = [...svg.querySelectorAll("[data-slot]")].map((g) => ({ n: +g.dataset.slot, g, spot: g.querySelector("[data-spot]") }));
-const glows = [...svg.querySelectorAll("[data-glow]")];
+const slots = [...svg.querySelectorAll("[data-slot]")].map((g) => ({ n: +g.dataset.slot, g, spot: g.querySelector("[data-spot]"), glow: g.querySelector("[data-glow]") }));
+
 const head = part("head"), drop = part("drop"), tier = part("tier"), cleats = part("cleats"), bar = part("screen-bar");
 const p2 = (x, y, z) => iso([x, y, z], P);
 const TOP = BELT_Z + TOWEL_H;
@@ -210,16 +222,14 @@ function draw(t, clock) {
     const dosed = s.n >= 1 ? 1 : s.n === 0 && t >= land ? 1 : 0;
     // the spot spreads into the face side and settles to a tint
     const spread = s.n >= 1 ? 1 : s.n === 0 ? ease(age / 0.5) : 0;
-    const r = dosed ? 2.2 + 3.8 * spread : 0;
+    const r = dosed ? 2.2 + 6.8 * spread : 0;
     s.spot.setAttribute("rx", (r * KS).toFixed(2));
     s.spot.setAttribute("ry", (r * KS * SIN_E).toFixed(2));
-    s.spot.style.opacity = String(dosed ? 0.95 - 0.45 * spread : 0);
+    s.spot.style.opacity = String(dosed ? 0.95 * (1 - spread) : 0);
     // the glow blooms on contact, then breathes gently as the towel travels on
     const level = s.n >= 1 ? 0.62 : s.n === 0 ? bloom(age, 0.18, 0.55, 0.62) : 0;
     const breathe = 1 + 0.08 * Math.sin(clock * 1.7 + s.n * 1.3);
-    const g = glows[i];
-    g.setAttribute("transform", translateAlong(P, [x, 0, 0]));
-    g.style.opacity = String(Math.max(0, level * breathe * edge));
+    s.glow.style.opacity = String(Math.max(0, Math.min(1, level * breathe)));
   });
   // belt cleats travel with the towels; the stack light shows blue while dosing
   const travel = (m * PITCH) % 10;

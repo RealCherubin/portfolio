@@ -36,6 +36,7 @@ export const ALOE_CSS = `
 .aloe-fill-body{fill:var(--clb-top)}.aloe-fill-body[data-steep]{fill:var(--clb-2)}
 .serum-trim{fill:none;stroke:var(--serum);stroke-width:1}
 .serum-fill{fill:var(--serum);stroke:none}
+.serum-wash{fill:var(--serum-glow);opacity:.8;stroke:none}
 .serum-screen{fill:var(--screen);stroke:none}
 .serum-tier [data-part="tier"] .iso-fill,.serum-tier [data-part="tier"] .iso-shade,.serum-tier [data-part="tier"] .iso-top{fill:var(--serum)}
 .iso-swatch[data-mark="serum"] path{stroke:var(--serum);stroke-width:3}
