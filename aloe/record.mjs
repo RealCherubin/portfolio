@@ -16,9 +16,9 @@ const preview = process.argv.includes("--preview");
 const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN || "/opt/pw-browsers/chromium-1194/chrome-linux/chrome", args: ["--no-sandbox"] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 await page.goto(pathToFileURL(join(HERE, LINE ? "line-film.html" : "film.html")).href);
-await page.waitForFunction(() => window.__aloe && window.__aloe.length === 4);
+await page.waitForFunction(() => window.__aloe && window.__aloe.length >= 4);
 if (preview) {
-  for (const s of LINE ? [2, 5.5, 9, 13, 17, 26, 34, 44] : [1.5, 8, 16, 24, 30, 36, 42]) {
+  for (const s of LINE ? [2, 6, 13, 24, 35, 44, 49, 56] : [1.5, 8, 16, 24, 30, 36, 42]) {
     await page.evaluate((t) => window.filmAt(t), s);
     await page.screenshot({ path: join(HERE, "shots", `film-${s}.png`) });
   }

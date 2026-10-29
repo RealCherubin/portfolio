@@ -10,6 +10,7 @@ import { fig05 } from "./fig05-spin.mjs";
 import { fig06 } from "./fig06-weave.mjs";
 import { fig07 } from "./fig07-finish.mjs";
 import { fig08 } from "./fig08-serum.mjs";
+import { fig09 } from "./fig09-pack.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FPS = 30;
@@ -21,6 +22,7 @@ const FIGS = [
   { fig: fig06, step: "06", title: "Three-layer weave", cap: "The cones feed the loom, which weaves the face, middle and body layers at once.", cycle: 15 },
   { fig: fig07, step: "07", title: "Cut, stitch & fold", cap: "The woven roll is cut into towels, hemmed and folded face side up.", cycle: 11 },
   { fig: fig08, step: "08", title: "Serum finish", cap: "Each folded towel rides on to take one drop of serum.", cycle: 5.5 },
+  { fig: fig09, step: "09", title: "Pack", cap: "Each towel is set into its doctor towels box, the lid is closed and the box moves on.", cycle: 7 },
 ];
 
 const at = (p) => k.iso(p, P);
@@ -72,15 +74,22 @@ const bridgeA = conveyor(A.x0, A.x1, A.z) + `<g data-part="cones">${items("cone"
 const bridgeB = conveyor(B.x0, B.x1, B.z, { width: 34 }) + `<g data-part="rolls">${items("roll", 3)}</g>` + railFront(B.x0, B.x1, B.z, 34);
 const bridgeC = conveyor(C.x0, C.x1, C.z, { width: 40, rollers: false }) + `<path data-part="cleats" class="iso-line" data-tone="faint" d=""/>`;
 const bridgeCFront = railFront(C.x0, C.x1, C.z, 40);
+// 08 → 09: the serum belt carries on to the packer at the same height
+const Dz = { x0: 3 * PITCH_X + 150, x1: 4 * PITCH_X - 158, z: 24 };
+const towelItem = (() => {
+  const tp = { x: -13, y: -17, w: 26, d: 34, r: 1.6 };
+  return `<g class="cl-face">${S(k.slabOf(tp, Dz.z, 2.4, P, 3, 0.3), { tone: "hi", crease: "lo", inner: L(k.sideSeam(tp, Dz.z + 1.2, P, 3), { tone: "faint" }) })}</g><g class="cl-body">${S(k.slabOf({ x: -10, y: 8, w: 9, d: 4, r: 0.5 }, Dz.z + 2.4, 0.5, P, 2), { tone: "hi", crease: "lo" })}</g>`;
+})();
+const bridgeD = conveyor(Dz.x0, Dz.x1, Dz.z, { width: 40, rollers: false }) + `<g data-part="towels-d">${Array.from({ length: 2 }, () => `<g data-item style="opacity:0">${towelItem}</g>`).join("")}</g>` + railFront(Dz.x0, Dz.x1, Dz.z, 40);
 
 // order: back of the line first; each bridge between the benches it joins
-const body = [placed[0].svg, bridgeA, placed[1].svg, bridgeB, placed[2].svg, bridgeC, bridgeCFront, placed[3].svg].join("");
+const body = [placed[0].svg, bridgeA, placed[1].svg, bridgeB, placed[2].svg, bridgeC, bridgeCFront, placed[3].svg, bridgeD, placed[4].svg].join("");
 const xs = placed.flatMap((p) => p.box.map((b) => b[0])), ys = placed.flatMap((p) => p.box.map((b) => b[1]));
 const WORLD = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
 
 // ---------- the cut ----------
 // Establish the whole line, track machine to machine, pull back. Times in seconds.
-const WIDE = 2100; // wide shot width in viewBox units, fits the whole line
+const WIDE = 2520; // wide shot width in viewBox units, fits the whole line
 const CLOSE = 820;
 const shots = [];
 let time = 0;
@@ -90,7 +99,7 @@ shots.push({ at: time, c: [WORLD.x + WORLD.w / 2, WORLD.y + WORLD.h / 2], w: WID
 placed.forEach((p, i) => {
   time += i === 0 ? 2.4 : 1.9; // travel
   shots.push({ at: time, c: p.centre, w: CLOSE, focus: i });
-  time += i === 3 ? 7.5 : 6.6; // hold on the machine
+  time += i === 4 ? 8 : i === 3 ? 6.4 : 6.6; // hold on the machine
   shots.push({ at: time, c: p.centre, w: CLOSE, focus: i });
 });
 time += 2.6;
@@ -121,15 +130,15 @@ html,body{width:1920px;height:1080px;overflow:hidden}
 
 const overlay = `
 <div class="line-scrim" data-card="top"></div><div class="line-scrim" data-card="bottom"></div>
-<div class="line-card" data-card="open"><p>Steps 05 to 08</p><h1>The making of an aloe vera towel</h1></div>
-<div class="line-card" data-card="end"><p>One line, from fibre to finished towel</p><h1>From aloe to towel</h1></div>
+<div class="line-card" data-card="open"><p>Steps 05 to 09</p><h1>The making of an aloe vera towel</h1></div>
+<div class="line-card" data-card="end"><p>One line, from fibre to the box</p><h1>From aloe to your door</h1></div>
 <div class="line-steps" data-card="steps">${FIGS.map((f) => `<span><b>${f.step}</b>${f.title}</span>`).join("")}</div>
 <div class="line-head" data-card="head"><span class="line-step" data-head-step></span><span data-head-title></span><span class="line-rule"></span><span>The aloe towel line</span></div>
 <div class="line-foot" data-card="foot"><p class="line-cap" data-cap></p><span class="line-read" data-read></span></div>`;
 
 const control = `<script>
 window.ALOE_FILM = true; window.ALOE_LINE = true;
-const LINE = ${JSON.stringify({ shots, total: TOTAL, figs: FIGS.map((f) => ({ step: f.step, title: f.title, cap: f.cap, cycle: f.cycle })), A, B, C, K, UNIT: k.iso([1, 0, 0], { origin: [0, 0], scale: 1, azimuth: 90 })[0] })};
+const LINE = ${JSON.stringify({ shots, total: TOTAL, figs: FIGS.map((f) => ({ step: f.step, title: f.title, cap: f.cap, cycle: f.cycle })), A, B, C, D: Dz, K, UNIT: k.iso([1, 0, 0], { origin: [0, 0], scale: 1, azimuth: 90 })[0] })};
 const fade = (x) => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
 const ease = (x) => { x = Math.min(1, Math.max(0, x)); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
 function camera(time) {
@@ -161,9 +170,10 @@ window.filmAt = (time) => {
   const h = cam.w * 9 / 16;
   lineSvg().setAttribute("viewBox", [cam.c[0] - cam.w / 2, cam.c[1] - h / 2, cam.w, h].map((v) => v.toFixed(2)).join(" "));
   // every machine runs all the time, each on its own cycle
-  window.__aloe.forEach((hook, i) => hook((time / LINE.figs[i].cycle + (i === 3 ? 0.3 : 0.05)) % 1, time));
+  window.__aloe.forEach((hook, i) => hook((time / LINE.figs[i].cycle + (i === 3 ? 0.3 : i === 4 ? 0.2 : 0.05)) % 1, time));
   belt(document.querySelector('[data-part="cones"]'), "[data-item]", LINE.A.x0 + 6, LINE.A.x1 - 6, LINE.A.z, (LINE.A.x1 - LINE.A.x0 - 12) / 4, 9, time);
   belt(document.querySelector('[data-part="rolls"]'), "[data-item]", LINE.B.x0 + 4, LINE.B.x1 - 4, LINE.B.z, (LINE.B.x1 - LINE.B.x0 - 8) / 3, 6, time);
+  belt(document.querySelector('[data-part="towels-d"]'), "[data-item]", LINE.D.x0 + 4, LINE.D.x1 - 4, LINE.D.z, (LINE.D.x1 - LINE.D.x0 - 8) / 2, 6, time);
   // the serum belt's cleats index with its towels
   const t8 = (time / LINE.figs[3].cycle + 0.3) % 1, m = fade(Math.min(1, t8 / 0.34));
   const off = ((Math.floor(time / LINE.figs[3].cycle + 0.3) + m) * 40) % 10, lines = [];
@@ -186,7 +196,7 @@ window.filmAt = (time) => {
 };
 </script>`;
 
-const svg = `<svg id="line" class="iso-svg" xmlns="http://www.w3.org/2000/svg" viewBox="${WORLD.x} ${WORLD.y} ${WORLD.w} ${WORLD.h}" role="img" aria-label="The aloe towel line, steps 05 to 08, joined end to end: blending and spinning, the three-layer loom, the finishing bench and the serum dosing station, with conveyors carrying cones, woven rolls and folded towels between them.">${body}</svg>`;
+const svg = `<svg id="line" class="iso-svg" xmlns="http://www.w3.org/2000/svg" viewBox="${WORLD.x} ${WORLD.y} ${WORLD.w} ${WORLD.h}" role="img" aria-label="The aloe towel line, steps 05 to 09, joined end to end: blending and spinning, the three-layer loom, the finishing bench, the serum dosing station and the packing station, with conveyors carrying cones, woven rolls and folded towels between them.">${body}</svg>`;
 const lives = FIGS.map((f) => PRE + f.fig.live.replace("__LOOP__", LOOP));
 let html = pageHtml({ title: "Aloe towel line film", theme: "light", intro: control, cards: [svg, overlay], lives });
 html = html.replace("</style>", FILM_CSS + "</style>");
