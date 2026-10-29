@@ -5,7 +5,7 @@
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { k, G, pageHtml, PRE, LOOP } from "./lib.mjs";
+import { k, G, pageHtml, PRE, LOOP, skinShield } from "./lib.mjs";
 import { fig05 } from "./fig05-spin.mjs";
 import { fig06 } from "./fig06-weave.mjs";
 import { fig07 } from "./fig07-finish.mjs";
@@ -78,7 +78,7 @@ const bridgeCFront = railFront(C.x0, C.x1, C.z, 40);
 const Dz = { x0: 3 * PITCH_X + 150, x1: 4 * PITCH_X - 158, z: 24 };
 const towelItem = (() => {
   const tp = { x: -13, y: -17, w: 26, d: 34, r: 1.6 };
-  return `<g class="cl-face">${S(k.slabOf(tp, Dz.z, 2.4, P, 3, 0.3), { tone: "hi", crease: "lo", inner: L(k.sideSeam(tp, Dz.z + 1.2, P, 3), { tone: "faint" }) })}</g><g class="cl-body">${S(k.slabOf({ x: -10, y: 8, w: 9, d: 4, r: 0.5 }, Dz.z + 2.4, 0.5, P, 2), { tone: "hi", crease: "lo" })}</g>`;
+  return `${skinShield(P, tp, Dz.z, 2.4)}<g class="cl-face">${S(k.slabOf(tp, Dz.z, 2.4, P, 3, 0.3), { tone: "hi", crease: "lo", inner: L(k.sideSeam(tp, Dz.z + 1.2, P, 3), { tone: "faint" }) })}</g><g class="cl-body">${S(k.slabOf({ x: -10, y: 8, w: 9, d: 4, r: 0.5 }, Dz.z + 2.4, 0.5, P, 2), { tone: "hi", crease: "lo" })}</g>`;
 })();
 const bridgeD = conveyor(Dz.x0, Dz.x1, Dz.z, { width: 40, rollers: false }) + `<g data-part="towels-d">${Array.from({ length: 2 }, () => `<g data-item style="opacity:0">${towelItem}</g>`).join("")}</g>` + railFront(Dz.x0, Dz.x1, Dz.z, 40);
 

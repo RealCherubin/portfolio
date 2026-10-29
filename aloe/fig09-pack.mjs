@@ -3,7 +3,7 @@
 // picks each towel with a suction head and lowers it into the box at the
 // station; a closer arm swings the hinged lid shut over it, the box indexes on
 // and the next empty box comes in.
-import { k, G, WIDTH, HEIGHT, helpers, bench, cardHtml } from "./lib.mjs";
+import { k, G, WIDTH, HEIGHT, helpers, bench, cardHtml, skinShield, SERUM_DEFS } from "./lib.mjs";
 
 const PLATE = { x: -160, y: -64, w: 320, d: 128, r: 8 };
 const BOX = { w: 36, d: 44, h: 10 }; // the mailer, centred on its slot
@@ -87,7 +87,7 @@ function towelArt(z) {
   const tp = { x: -TOWEL.w / 2, y: -TOWEL.d / 2, w: TOWEL.w, d: TOWEL.d, r: 1.6 };
   const top = z + TOWEL.h;
   const stitch = k.lineOnTop([tp.x, tp.y + tp.d - 3], [tp.x + tp.w, tp.y + tp.d - 3], top, P);
-  return `<g class="cl-face">${S(k.slabOf(tp, z, TOWEL.h, P, 3, 0.3), { tone: "hi", crease: "lo", inner: L(k.sideSeam(tp, z + TOWEL.h / 2, P, 3), { tone: "faint" }) })}<path class="aloe-stitch-under" d="${stitch}"/><path class="aloe-stitch" d="${stitch}"/></g><g class="cl-body">${S(k.slabOf({ x: tp.x + 3, y: tp.y + tp.d - 9, w: 9, d: 4, r: 0.5 }, top, 0.5, P, 2), { tone: "hi", crease: "lo" })}</g>`;
+  return `${skinShield(P, tp, z, TOWEL.h)}<g class="cl-face">${S(k.slabOf(tp, z, TOWEL.h, P, 3, 0.3), { tone: "hi", crease: "lo", inner: L(k.sideSeam(tp, z + TOWEL.h / 2, P, 3), { tone: "faint" }) })}<path class="aloe-stitch-under" d="${stitch}"/><path class="aloe-stitch" d="${stitch}"/></g><g class="cl-body">${S(k.slabOf({ x: tp.x + 3, y: tp.y + tp.d - 9, w: 9, d: 4, r: 0.5 }, top, 0.5, P, 2), { tone: "hi", crease: "lo" })}</g>`;
 }
 
 function boxSlot(n) {
@@ -175,7 +175,7 @@ function head() {
   return out.join("");
 }
 
-const defs = `<defs><clipPath id="pack-open"><path d="${k.pathOf(
+const defs = SERUM_DEFS + `<defs><clipPath id="pack-open"><path d="${k.pathOf(
   (() => {
     const ring = k.ringOf(inner, 2);
     const pts = [...ring.map(([x, y]) => at([x, y, RIM])), ...ring.map(([x, y]) => at([x, y, RIM + 200]))];
@@ -302,6 +302,7 @@ export const fig09 = {
     hint: "Hover to scrub one box",
     readout: "indexing",
     keys: [
+      { mark: "serum", label: "Skin Shield glow on every finished towel" },
       { mark: "face", label: "Serum-finished towel" },
       { mark: "raised", label: "doctor towels mailer box" },
       { mark: "lit", label: "Suction head and lid closer" },

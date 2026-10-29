@@ -19,8 +19,8 @@ export const ALOE_CSS = `
   --clb-paper:#ece5d1;--clb-top:#f4eedd;--clb-0:#d0c7ad;--clb-1:#d9d1b9;--clb-2:#e2dbc5;--clb-3:#e8e1cd;--clb-hi:#6b6450;--clb-lo:#b7ad91;--clb-faint:#d3cab1;
   --aloe-stripe:#8d9f27;--aloe-thread:#f6f1e2;--aloe-thread-edge:#9a9078;--aloe-dust:#93a52c;
 }
-.iso[data-theme="light"],.iso[data-theme="light"] .iso-plate{--brand-ink:#8a3a1c;--box-inner:#efece4;--box-wall:#dfdbd0;--serum:#2f86d6;--serum-glow:#4da6ff;--screen:#2b3440;--aloe-dope:#ead9a6;--aloe-cavity:#e4e3de;--aloe-liquid:#cfd8d6;--aloe-glass:#ffffff}
-.iso{--brand-ink:#dd8d66;--box-inner:#24221d;--box-wall:#1b1915;--serum:#4aa3f0;--serum-glow:#5bb4ff;--screen:#0a1018;--aloe-dope:#6b5a2a;--aloe-cavity:#0e0e0e;--aloe-liquid:#2a3433;--aloe-glass:#ffffff;
+.iso[data-theme="light"],.iso[data-theme="light"] .iso-plate{--brand-ink:#3b2e27;--box-inner:#efece4;--box-wall:#dfdbd0;--serum:#2f86d6;--serum-glow:#4da6ff;--screen:#2b3440;--aloe-dope:#ead9a6;--aloe-cavity:#e4e3de;--aloe-liquid:#cfd8d6;--aloe-glass:#ffffff}
+.iso{--brand-ink:#d9cdc2;--box-inner:#24221d;--box-wall:#1b1915;--serum:#4aa3f0;--serum-glow:#5bb4ff;--screen:#0a1018;--aloe-dope:#6b5a2a;--aloe-cavity:#0e0e0e;--aloe-liquid:#2a3433;--aloe-glass:#ffffff;
   --clf-paper:#5f6b1d;--clf-top:#6d7a23;--clf-0:#414b11;--clf-1:#495415;--clf-2:#525e19;--clf-3:#5a671c;--clf-hi:#d3e07e;--clf-lo:#8d9b3a;--clf-faint:#6c7a26;
   --clb-paper:#39362d;--clb-top:#423e34;--clb-0:#28261f;--clb-1:#2e2b24;--clb-2:#332f28;--clb-3:#37342c;--clb-hi:#dcd3b8;--clb-lo:#77705d;--clb-faint:#4e4a3e;
   --aloe-stripe:#9db23a;--aloe-thread:#e9e2cb;--aloe-thread-edge:#6f6956;--aloe-dust:#a9bd44;
@@ -37,6 +37,7 @@ export const ALOE_CSS = `
 .box-out{fill:var(--anatomy-top);stroke:none}.box-out[data-steep]{fill:var(--anatomy-shade-2)}
 .box-in{fill:var(--box-inner);stroke:none}.box-in[data-steep]{fill:var(--box-wall)}
 .box-cavity{fill:var(--box-inner);stroke:none}.box-wall{fill:var(--box-wall);stroke:none}
+/* box print: a deep neutral brown with no red in it (brand rule, Oct 2026) */
 .box-ink{fill:var(--brand-ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;letter-spacing:.01em}
 .box-bold{font-weight:700;letter-spacing:-.03em}
 .box-rule{fill:none;stroke:var(--brand-ink);stroke-width:.7}
@@ -60,6 +61,27 @@ export const ALOE_CSS = `
 .aloe-intro{margin:0 0 8px;color:var(--anatomy-strong);font-size:15px}
 .aloe-intro small{display:block;color:var(--anatomy-muted);font-size:13px}
 `;
+
+// Skin Shield: every towel that has been through the serum carries a soft blue
+// glow, a halo round its whole outline and a column rising off its full width,
+// drawn behind the towel so the olive stays true. Needs SERUM_DEFS in the svg.
+export const SERUM_DEFS = `<defs><linearGradient id="serum-column" x1="0" y1="1" x2="0" y2="0"><stop offset="0" style="stop-color:var(--serum-glow);stop-opacity:.62"/><stop offset=".4" style="stop-color:var(--serum-glow);stop-opacity:.24"/><stop offset="1" style="stop-color:var(--serum-glow);stop-opacity:0"/></linearGradient></defs>`;
+function hull2(points) {
+  const p = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length > 1 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of p.reverse()) { while (up.length > 1 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+export function skinShield(P, plan, z, h, { level = 0.62, rise = 22 } = {}) {
+  const at = (p) => k.iso(p, P);
+  const top = z + h;
+  const ring = k.ringOf(k.insetPlan(plan, -2.2), 3), own = k.ringOf(plan, 3);
+  const halo = k.pathOf(hull2([...ring.map(([x, y]) => at([x, y, z])), ...ring.map(([x, y]) => at([x, y, top + 1.5]))]), true);
+  const column = k.pathOf(hull2([...own.map(([x, y]) => at([x, y, top])), ...own.map(([x, y]) => at([x, y, top + rise]))]), true);
+  return `<g class="skin-shield" style="opacity:${level}"><path d="${column}" fill="url(#serum-column)" style="filter:blur(3px)"/><path d="${halo}" class="serum-wash" style="filter:blur(3.5px)"/></g>`;
+}
 
 export function helpers(P) {
   const at = (point) => k.iso(point, P);
